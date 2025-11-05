@@ -112,6 +112,33 @@ function App() {
         </div>
       </section>
 
+      {/* 3D Virtual Tour */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: '#006B7D' }}>
+              Take a Virtual Tour
+            </h2>
+            <p className="text-lg text-gray-600">
+              Explore Element Nashville from anywhere with our interactive 3D tour
+            </p>
+          </div>
+          <div className="flex justify-center">
+            <div className="w-full max-w-5xl aspect-video rounded-xl overflow-hidden shadow-2xl">
+              <iframe
+                width="100%"
+                height="100%"
+                src="https://my.matterport.com/show/?m=uG7k66BUJEK"
+                frameBorder="0"
+                allowFullScreen
+                allow="autoplay; fullscreen; web-share; xr-spatial-tracking;"
+                className="w-full h-full"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Why Element Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
