@@ -1,6 +1,7 @@
 import './App.css'
 import { useState } from 'react'
 import { Phone, Mail, MapPin, ChefHat, ParkingCircle, Dumbbell, Zap, Wifi, Shirt, DoorOpen, Award, Check, Smartphone } from 'lucide-react'
+import DiscountWheelModal from './components/DiscountWheel'
 import heroImage from './assets/element-nashville-exterior-night.webp'
 import exteriorImage from './assets/element-nashville-exterior-twilight.webp'
 import room1 from './assets/element-nashville-room-king-1.webp'
@@ -929,6 +930,9 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Discount Wheel Modal */}
+      <DiscountWheelModal />
     </div>
   )
 }
