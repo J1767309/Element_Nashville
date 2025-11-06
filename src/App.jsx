@@ -1,7 +1,7 @@
 import './App.css'
 import { useState } from 'react'
 import { Phone, Mail, MapPin, ChefHat, ParkingCircle, Dumbbell, Zap, Wifi, Shirt, DoorOpen, Award, Check, Smartphone } from 'lucide-react'
-import DiscountWheelModal from './components/DiscountWheel'
+import DiscountWheel from './components/DiscountWheel'
 import heroImage from './assets/element-nashville-exterior-night.webp'
 import exteriorImage from './assets/element-nashville-exterior-twilight.webp'
 import room1 from './assets/element-nashville-room-king-1.webp'
@@ -105,11 +105,14 @@ function App() {
       </section>
 
       {/* Special Offer Banner */}
-      <section className="py-4" style={{ backgroundColor: '#006B7D' }}>
+      <section className="py-10 md:py-16" style={{ backgroundColor: '#006B7D' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
           <p className="text-lg md:text-xl font-semibold">
             🎉 Special Offer: Save 15% on Extended Stays for Project Workers
           </p>
+          <div className="mt-8">
+            <DiscountWheel />
+          </div>
         </div>
       </section>
 
@@ -931,8 +934,7 @@ function App() {
         </div>
       </footer>
 
-      {/* Discount Wheel Modal */}
-      <DiscountWheelModal />
+      {/* Discount Wheel Inline */}
     </div>
   )
 }

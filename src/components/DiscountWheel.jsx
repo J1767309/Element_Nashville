@@ -1,7 +1,12 @@
-import { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
+import { useState } from 'react'
 
-const DiscountWheel = ({ onClose }) => {
+const extractDigits = (value = '') =>
+  value
+    .split('')
+    .filter((char) => char >= '0' && char <= '9')
+    .join('')
+
+const DiscountWheel = () => {
   const [rotation, setRotation] = useState(0)
   const [isSpinning, setIsSpinning] = useState(false)
   const [hasSpun, setHasSpun] = useState(false)
@@ -9,6 +14,8 @@ const DiscountWheel = ({ onClose }) => {
   const [showEmailForm, setShowEmailForm] = useState(false)
   const [prize, setPrize] = useState(null)
   const [showCongrats, setShowCongrats] = useState(false)
+
+  const prizeCode = prize?.text ? extractDigits(prize.text) : ''
 
   // Prize segments with brand colors
   const prizes = [
@@ -54,36 +61,23 @@ const DiscountWheel = ({ onClose }) => {
     }
   }
 
-  const handleClose = () => {
-    // Save to localStorage so it doesn't show again
-    localStorage.setItem('discountWheelShown', 'true')
-    onClose()
-  }
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-in fade-in duration-300">
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 animate-in zoom-in-95 duration-300">
-        <button
-          onClick={handleClose}
-          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
-          aria-label="Close"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10 lg:p-12 mt-8">
+      {!showCongrats ? (
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold mb-3" style={{ color: '#006B7D' }}>
+              Spin to Win!
+            </h2>
+            <p className="text-gray-600 text-lg">
+              Try your luck for an exclusive discount on your extended stay! Spin the wheel and claim your prize by
+              entering your email address below.
+            </p>
+          </div>
 
-        {!showCongrats ? (
-          <>
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold mb-2" style={{ color: '#006B7D' }}>
-                Spin to Win!
-              </h2>
-              <p className="text-gray-600">
-                Try your luck for an exclusive discount on your extended stay!
-              </p>
-            </div>
-
+          <div className="flex flex-col items-center gap-10 lg:flex-row lg:items-start lg:justify-center">
             {/* Wheel Container */}
-            <div className="relative w-80 h-80 mx-auto mb-6">
+            <div className="relative w-72 h-72 md:w-80 md:h-80">
               {/* Arrow Pointer */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-10">
                 <div
@@ -121,8 +115,14 @@ const DiscountWheel = ({ onClose }) => {
                     // Calculate text position
                     const textAngle = (angle + nextAngle) / 2
                     const textRad = (textAngle - 90) * Math.PI / 180
-                    const textX = 100 + 65 * Math.cos(textRad)
-                    const textY = 100 + 65 * Math.sin(textRad)
+                    const textRadius = 60
+                    const textX = 100 + textRadius * Math.cos(textRad)
+                    const textY = 100 + textRadius * Math.sin(textRad)
+                    
+                    // Split only "Free" labels into two lines
+                    const needsTwoLines = prize.text.startsWith('Free')
+                    const textParts = needsTwoLines ? prize.text.split(' ') : [prize.text]
+                    const fontSize = needsTwoLines ? '9' : '10'
 
                     return (
                       <g key={index}>
@@ -132,18 +132,47 @@ const DiscountWheel = ({ onClose }) => {
                           stroke="white"
                           strokeWidth="2"
                         />
-                        <text
-                          x={textX}
-                          y={textY}
-                          fill={prize.textColor}
-                          fontSize="14"
-                          fontWeight="bold"
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                          transform={`rotate(${textAngle}, ${textX}, ${textY})`}
-                        >
-                          {prize.text}
-                        </text>
+                        {needsTwoLines && textParts.length === 2 ? (
+                          <>
+                            <text
+                              x={textX}
+                              y={textY - 6}
+                              fill={prize.textColor}
+                              fontSize={fontSize}
+                              fontWeight="700"
+                              textAnchor="middle"
+                              dominantBaseline="middle"
+                              style={{ fontFamily: 'Inter, sans-serif' }}
+                            >
+                              {textParts[0]}
+                            </text>
+                            <text
+                              x={textX}
+                              y={textY + 6}
+                              fill={prize.textColor}
+                              fontSize={fontSize}
+                              fontWeight="700"
+                              textAnchor="middle"
+                              dominantBaseline="middle"
+                              style={{ fontFamily: 'Inter, sans-serif' }}
+                            >
+                              {textParts[1]}
+                            </text>
+                          </>
+                        ) : (
+                          <text
+                            x={textX}
+                            y={textY}
+                            fill={prize.textColor}
+                            fontSize={fontSize}
+                            fontWeight="700"
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            style={{ fontFamily: 'Inter, sans-serif' }}
+                          >
+                            {prize.text}
+                          </text>
+                        )}
                       </g>
                     )
                   })}
@@ -153,99 +182,80 @@ const DiscountWheel = ({ onClose }) => {
                 </svg>
               </div>
             </div>
-
+            
             {/* Email Form or Spin Button */}
-            {showEmailForm ? (
-              <form onSubmit={handleSubmitEmail} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-700">
-                    Enter your email to claim your prize:
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    required
-                    className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2"
-                    style={{ borderColor: '#006B7D', focusRing: '#006B7D' }}
-                  />
-                </div>
+            <div className="w-full max-w-md">
+              {showEmailForm ? (
+                <form onSubmit={handleSubmitEmail} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">
+                      Enter your email to claim your prize:
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      required
+                      className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#006B7D]"
+                      style={{ borderColor: '#006B7D' }}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full px-6 py-3 rounded-lg font-bold text-white transition-all hover:scale-105 shadow-lg"
+                    style={{ backgroundColor: '#006B7D' }}
+                  >
+                    Claim My Prize!
+                  </button>
+                </form>
+              ) : (
                 <button
-                  type="submit"
-                  className="w-full px-6 py-3 rounded-lg font-bold text-white transition-all hover:scale-105 shadow-lg"
+                  onClick={spinWheel}
+                  disabled={isSpinning || hasSpun}
+                  className="w-full px-8 py-4 rounded-lg font-bold text-xl text-white transition-all hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ backgroundColor: '#006B7D' }}
                 >
-                  Claim My Prize!
+                  {isSpinning ? 'Spinning...' : 'SPIN THE WHEEL'}
                 </button>
-              </form>
-            ) : (
-              <button
-                onClick={spinWheel}
-                disabled={isSpinning || hasSpun}
-                className="w-full px-8 py-4 rounded-lg font-bold text-xl text-white transition-all hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ backgroundColor: '#006B7D' }}
-              >
-                {isSpinning ? 'Spinning...' : 'SPIN THE WHEEL'}
-              </button>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">🎉</div>
-            <h2 className="text-3xl font-bold mb-4" style={{ color: '#006B7D' }}>
-              Congratulations!
-            </h2>
-            <div
-              className="text-5xl font-bold mb-4 p-6 rounded-xl"
-              style={{ backgroundColor: prize?.color, color: prize?.textColor }}
-            >
-              {prize?.text}
+              )}
             </div>
-            <p className="text-gray-700 mb-2">
-              Your discount has been sent to:
-            </p>
-            <p className="text-lg font-semibold mb-6" style={{ color: '#006B7D' }}>
-              {email}
-            </p>
-            <p className="text-sm text-gray-600 mb-6">
-              Use code <span className="font-bold">SPIN{prize?.text.replace(/[^0-9]/g, '')}</span> when booking your extended stay!
-            </p>
-            <button
-              onClick={handleClose}
-              className="px-8 py-3 rounded-lg font-bold text-white transition-all hover:scale-105"
-              style={{ backgroundColor: '#006B7D' }}
-            >
-              Start Booking
-            </button>
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="text-center max-w-2xl mx-auto">
+          <div className="text-6xl mb-4">🎉</div>
+          <h2 className="text-3xl font-bold mb-4" style={{ color: '#006B7D' }}>
+            Congratulations!
+          </h2>
+          <div
+            className="text-5xl font-bold mb-4 p-6 rounded-xl"
+            style={{ backgroundColor: prize?.color, color: prize?.textColor }}
+          >
+            {prize?.text}
+          </div>
+          <p className="text-gray-700 mb-2">
+            Your discount has been sent to:
+          </p>
+          <p className="text-lg font-semibold mb-6" style={{ color: '#006B7D' }}>
+            {email}
+          </p>
+          <p className="text-sm text-gray-600 mb-6">
+            Use code <span className="font-bold">SPIN{prizeCode}</span> when booking your extended stay!
+          </p>
+          <a
+            href="https://www.marriott.com/en-us/hotels/bnaew-element-nashville-vanderbilt-west-end/overview/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-8 py-3 rounded-lg font-bold text-white transition-all hover:scale-105 shadow-lg"
+            style={{ backgroundColor: '#006B7D' }}
+          >
+            Start Booking
+          </a>
+        </div>
+      )}
     </div>
   )
 }
 
-// Modal wrapper component
-const DiscountWheelModal = () => {
-  const [showWheel, setShowWheel] = useState(false)
-
-  useEffect(() => {
-    // Check if user has already seen the wheel
-    const hasSeenWheel = localStorage.getItem('discountWheelShown')
-
-    if (!hasSeenWheel) {
-      // Show wheel after 3 seconds
-      const timer = setTimeout(() => {
-        setShowWheel(true)
-      }, 3000)
-
-      return () => clearTimeout(timer)
-    }
-  }, [])
-
-  if (!showWheel) return null
-
-  return <DiscountWheel onClose={() => setShowWheel(false)} />
-}
-
-export default DiscountWheelModal
+export default DiscountWheel
